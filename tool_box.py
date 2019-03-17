@@ -4,7 +4,7 @@ import ugradio
 
 
 units = {"time": "($\mu$s)",
-         "frequency": "(MHz)",
+         "frequency": "(mHz)",
          "temperature": "(K)",
          "velocity": "($km \cdot s^{-1}$)",
          "voltage": "($\mu$V)",
