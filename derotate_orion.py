@@ -1,17 +1,12 @@
 
-import rotation
+import rotation as rot
 import orion
 import tool_box as tb
+import numpy as np
+import matplotlib.pyplot as plt
 
-def hour_angle(unixtimes):
-	"""
-	Calculates hour angle from unixtimes
-	"""
-	lst = LST_from_unixtimes(unixtimes)
-	ra = RA_from_unixtimes(unixtimes)
-	print(lst, ra)
-	return lst - ra
 
+orion_galactic_coordinates = (209.0137, -19.3816)
 
 def LST_from_unixtimes(unixtimes):
 	"""
@@ -19,30 +14,22 @@ def LST_from_unixtimes(unixtimes):
 	"""
 	julian_dates = tb.time["Julian"](unixtimes)
 	lst = tb.time["LST"](julian_dates)
-	return lst
+	return np.array(lst)
 
 
-orion_galactic_coordinates = (209.0137, -19.3816)
-rotation_matrix = rotation.GAL_to_EQ_rotation()
-right_ascension, declination = rotation.rotate(orion_galactic_coordinates, rotation_matrix)
-print("Right Ascension: " + str(right_ascension))
-print("Declination: " + str(declination))
-
-seconds_per_day = 86164.091 # number of seconds in a solar day
-degree_per_second = 360 / seconds_per_day # rate at which RA of star changes
-
-
-def RA_from_unixtimes(unixtimes):
+def hour_angle(galactic_coordinates, unixtimes):
 	"""
-	Calculates Right Ascension from array of unixtimes
+	Calculates hour angle from unixtimes
 	"""
-	current_time = tb.time["UTC seconds"]() # current unixtime in seconds
-	time_difference = current_time - unixtimes # different in unixtime
-	print(current_time)
-	print(unixtimes)
-	change_in_right_ascension = degree_per_second * time_difference # get change in degrees
-	print(change_in_right_ascension)
-	return right_ascension - change_in_right_ascension # derotate RA 
+	lst = np.degrees(LST_from_unixtimes(unixtimes))
+	hour_angle = []
+	for time in lst:
+		rotation2, rotation1 = rot.GAL_to_EQ_rotation(), rot.EQ_to_HA_rotation(time)
+		rotation_matrix = np.dot(rotation1, rotation2)
+		new_coords = rot.rotate(galactic_coordinates, rotation_matrix)
+		hour_angle.append(new_coords[0])
+	return np.array(hour_angle)
 
-HA_of_orion_data = hour_angle(orion.times)
-print(HA_of_orion_data)
+HA_of_orion_data = hour_angle(orion_galactic_coordinates, orion.times)
+plt.plot(HA_of_orion_data, orion.volts)
+plt.show()

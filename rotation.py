@@ -18,14 +18,14 @@ def GAL_to_EQ_rotation():
 
 
 def EQ_to_HA_rotation(LST):
-    return np.matrix([[cos(LST), sin(LST), 0],
+    return np.matrix([[cos(LST),  sin(LST), 0],
                       [sin(LST), -cos(LST), 0],
-                      [0, 0, 1]])
+                      [0,                0, 1]])
 
 
 def HA_to_CEL_rotation(lat=37.873199):
     return np.matrix([[-sin(lat), 0, cos(lat)],
-                      [0, -1, 0],
+                      [0,        -1,        0],
                       [cos(lat), 0, sin(lat)]])
 
 def GAL_to_CEL_rotation(LST, lat):
