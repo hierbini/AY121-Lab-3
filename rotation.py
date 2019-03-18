@@ -28,14 +28,16 @@ def HA_to_CEL_rotation(lat=37.873199):
                       [0, -1, 0],
                       [cos(lat), 0, sin(lat)]])
 
-
-def rotate(galactic_coordinates):
-    lon, lat = radians(galactic_coordinates[0]), radians(galactic_coordinates[1])
-    vector = direction(lat, lon)
-    LST = tb.time["LST"]
+def GAL_to_CEL_rotation(LST, lat):
     rot3, rot2, rot1 = GAL_to_EQ_rotation(), EQ_to_HA_rotation(LST), HA_to_CEL_rotation(lat)
     total_rotation = np.dot(rot1, np.dot(rot2, rot3))
-    coords = np.matmul(total_rotation, np.transpose(vector))
+    return total_rotation
+
+
+def rotate(galactic_coordinates, rotation_matrix):
+    lon, lat = radians(galactic_coordinates[0]), radians(galactic_coordinates[1])
+    vector = direction(lat, lon)
+    coords = np.matmul(rotation_matrix, np.transpose(vector))
     x0, x1, x2 = coords[0], coords[1], coords[2]
     new_lat, new_lon = math.degrees(math.atan(x1 / x0)), math.degrees(math.asin(x2))
     return (new_lat, new_lon)
