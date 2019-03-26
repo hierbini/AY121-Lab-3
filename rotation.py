@@ -36,9 +36,9 @@ def GAL_to_CEL_rotation(LST, lat):
 
 
 def rotate(galactic_coordinates, rotation_matrix):
-    lon, lat = radians(galactic_coordinates[0]), radians(galactic_coordinates[1])
+    lon, lat = np.radians(galactic_coordinates[0]), np.radians(galactic_coordinates[1])
     vector = direction(lat, lon)
     coords = np.matmul(rotation_matrix, np.transpose(vector))
     x0, x1, x2 = coords[0], coords[1], coords[2]
-    new_lat, new_lon = math.degrees(math.atan(x1 / x0)), math.degrees(math.asin(x2))
+    new_lat, new_lon = math.atan(x1 / x0), math.asin(x2)
     return (new_lat, new_lon)

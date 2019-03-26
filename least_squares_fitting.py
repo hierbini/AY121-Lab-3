@@ -1,25 +1,24 @@
 import numpy as np
 import linsolve 
 import rotation as rot
-import orion
 import tool_box as tb
 import matplotlib.pyplot as plt
 
 def LST_from_unixtimes(unixtimes):
-	"""
-	Returns LST from array of unixtimes
-	"""
-	julian_dates = tb.time["Julian"](unixtimes)
-	lst = tb.time["LST"](julian_dates)
-	return lst
+    """
+    Returns LST from array of unixtimes
+    """
+    julian_dates = tb.time["Julian"](unixtimes)
+    lst = tb.time["LST"](julian_dates)
+    return lst
 
 
 def hour_angle(unixtimes, ra):
-	"""
-	Calculates hour angle from unixtimes in degrees
-	"""
-	lst = np.degrees(LST_from_unixtimes(unixtimes))
-	return (lst - ra)
+    """
+    Calculates hour angle from unixtimes in radians
+    """
+    lst = LST_from_unixtimes(unixtimes)
+    return (lst - np.radians(ra))
 
 
 def get_A_and_B(volts, hour_angles, Q_ew):
@@ -32,28 +31,40 @@ def get_A_and_B(volts, hour_angles, Q_ew):
 	A, B = ls["A"], ls["B"]
 	return A, B
 
+
 def sum_of_squares(volts, hour_angles, Q_ew):
 	A, B = get_A_and_B(volts, hour_angles, Q_ew)
 	val = 2 * np.pi * Q_ew * np.sin(hour_angles)
 	return np.sum((volts - (A*np.cos(val) + B*np.sin(val)))**2)
 
+
 def get_minimum_value_coordinates(x_array, y_array):
-	ymin = min(s_squared)
-	xpos = s_squared.index(ymin)
-	xmin = orion_Q_ew[xpos]
+	ymin = min(y_array)
+	xpos = y_array.index(ymin)
+	xmin = x_array[xpos]
 	return xmin, ymin
 
-orion_galactic_coordinates = (209.0137, -19.3816)
-orion_ra, orion_dec = rot.rotate(orion_galactic_coordinates, rot.GAL_to_EQ_rotation())
-print("RA: " + str(orion_ra), "Dec: " + str(orion_dec))
-orion_hour_angles = hour_angle(orion.times, orion_ra)
-orion_Q_ew = np.linspace(30, 60, len(orion_hour_angles))
-s_squared = [sum_of_squares(orion.volts, orion_hour_angles, Q) for Q in orion_Q_ew]
-min_Q, min_s_squared = get_minimum_value_coordinates(orion_Q_ew, s_squared)
-print("Qew value: " + str(min_Q), "S_squared value: " + str(min_s_squared))
-plt.plot(orion_Q_ew, s_squared, color='k')
-plt.axvline(min_Q, min_s_squared, color='c', linestyle = "--")
-plt.show()
+
+def baseline_value(Qew, Qns, declination, wavelength=0.025, terrestrial_latitude=37.873199):
+	Bew = Qew * wavelength / np.cos(declination)
+	Bns = Qns * wavelength / np.cos(declination) / np.sin(np.radians(terrestrial_latitude))
+	B = np.sqrt(Bew**2 + Bns**2)
+	return B
+
+
+def get_baseline_script(ra, dec, volts, times):
+	print("RA: " + str(ra), "DEC: " + str(dec))
+	hour_angles = hour_angle(times, ra)
+	Qew_values = np.linspace(620, 720, 10000)
+	s_squared_of_residuals = [sum_of_squares(volts, hour_angles, Q) for Q in Qew_values]
+	min_Qew, min_s_squared = get_minimum_value_coordinates(Qew_values, s_squared_of_residuals)
+
+	print("Qew value: " + str(min_Qew), "S_squared value: " + str(min_s_squared))
+	print("Baseline: " + str(baseline_value(Qew=min_Qew, Qns=0, declination=dec)))
+	plt.plot(Qew_values, s_squared_of_residuals, color='k')
+	plt.axvline(min_Qew, min_s_squared, color='c', linestyle = "--")
+	plt.show()
+
  
 
 
