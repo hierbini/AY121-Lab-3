@@ -29,11 +29,11 @@ class Signal:
         power (array) : power spectrum
         freqs (array) : frequencies
         """
-        ft = tb.fft(self.signal)
-        power = np.abs(ft) ** 2
+        fourier_transform = tb.fft(self.signal)
+        power = np.abs(fourier_transform) ** 2
         dt = 1 / self.v_samp
-        freqs = tb.freq(self.nsamples, d = dt)
-        return -freqs, power
+        freqs = tb.freq(power.size, d=dt)
+        return freqs, power
 
     def plot_power(self, title="Insert Title"):
         self.power_plot = plt.figure(figsize = [15, 6])
