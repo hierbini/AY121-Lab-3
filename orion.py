@@ -2,7 +2,7 @@ import numpy as np
 import rotation as rot
 import matplotlib.pyplot as plt
 import data
-import least_squares_fitting as lsf
+import least_squares_fitting as lsf2
 
 
 galactic_coordinates = (209.0137, -19.3816)
@@ -14,7 +14,7 @@ polyfit = np.polyfit(times, volts, deg=2)
 orion_fit = np.polyval(polyfit, times)
 volts = volts - orion_fit
 v_samp, nsamples = 0.20, len(volts)
-lsf.get_baseline_script(ra, dec, volts, times)
+lsf2.baseline_script_2D(ra, dec, volts, times)
 
 #orion_signal = data.Signal(signal_data, v_samp, nsamples)
 
