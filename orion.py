@@ -3,6 +3,7 @@ import rotation as rot
 import matplotlib.pyplot as plt
 import data
 import least_squares_fitting as lsf
+import tool_box as tb
 
 class Orion:
 
@@ -13,12 +14,14 @@ class Orion:
 		signal = data.Signal(self.volts, 0.20, len(self.volts))
 		galactic_coordinates = (209.0137, -19.3816)
 		self.ra, self.dec = rot.rotate(galactic_coordinates, rot.GAL_to_EQ_rotation())
-		self.hour_angles = lsf.hour_angle(lsf.LST_from_unixtimes(self.times), self.ra)
+		self.hour_angles = tb.hour_angle(tb.LST_from_unixtimes(self.times), self.ra)
+
 
 	def polyfit(self):
 		polyfit = np.polyfit(self.times, self.volts, deg=2)
 		orion_fit = np.polyval(polyfit, self.times)
 		self.volts = self.volts - orion_fit
+
 
 	def plot_signal(self):
 		self.signal.plot_signal("Sun Data")
@@ -37,4 +40,4 @@ class Orion:
 			lsf.baseline_script_2D(self.hour_angles, self.dec, self.volts, self.times)
 
 orion_data = Orion("orion_data.npz")
-orion_data.baseline("2D")
+orion_data.baseline("1D")

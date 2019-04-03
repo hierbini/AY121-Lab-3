@@ -5,59 +5,20 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import ugradio.coord
 
-def RA_and_DEC_from_unixtimes(unixtimes, source="sun"):
+def get_val(Qew, Qns, hour_angles):
 	"""
-	Returns right ascension and declination from an array of unixtimes 
-	(only relevant for objects within the solar system, i.e. sun and moon)
+	Calculates the value 2πντ, which shows up a lot in our equations. In particular, 
+	ντ = Qew*sin(h_s) + Qns*cos(h_s).
 
 	Parameters:
-	unixtimes (int array): unixtimes from interferometer data
-	source (string): indicate "sun" or "moon"
+	Qew (float): Single value
+	Qns (float): Single value
+	hour_angles (float array): hour angles calculated from local sidereal time and right ascension
 
-	Returns:
-	ra (float array): right ascension in radians
-	dec (float array): declination in radians
+	Return:
+	value (float): Calculated value of 2πντ
 	"""
-	julian_dates = np.array(tb.time["Julian"](unixtimes))
-
-	if source == "sun":
-		position = [ugradio.coord.sunpos(jd) for jd in julian_dates]
-	if source == "moon":
-		position = [ugradio.coord.moonpos(jd) for jd in julian_dates]
-
-	ra = np.array([position[jd][0] for jd in range(len(julian_dates))])
-	dec = np.array([position[jd][1] for jd in range(len(julian_dates))])
-	return np.radians(ra), np.radians(dec)
-
-
-def LST_from_unixtimes(unixtimes):
-    """
-    Returns local sidereal times from array of unixtimes
-	
-	Parameters:
-	unixtimes (int array): unixtimes from interferometer data
-
-	Returns:
-	lst (float array): Returns local sidereal time in radians
-    """
-    julian_dates = tb.time["Julian"](unixtimes)
-    lst = tb.time["LST"](julian_dates)
-    return lst
-
-
-def hour_angle(lst, ra):
-    """
-    Calculates the hour angle given local sidereal time and right ascension
-
-    Parameters:
-    lst (float array): local sidereal time in radians
-    ra (float array): right ascension in radians
-
-    Returns:
-    hour angles (float array): equal to (lst - ra)
-    """
-    return lst - ra
-
+	return 2 * np.pi * (Qew * np.sin(hour_angles) + Qns * np.cos(hour_angles))
 
 def get_A_and_B(volts, hour_angles, Qew, Qns):
 	"""
@@ -76,7 +37,7 @@ def get_A_and_B(volts, hour_angles, Qew, Qns):
 	A (float): constant A
 	B (float): constant B
 	"""
-	val = 2 * np.pi * (Qew * np.sin(hour_angles) + Qns * np.cos(hour_angles))
+	val = get_val(Qew, Qns, hour_angles)
 	cos, sin = np.cos(val), np.sin(val), 
 	y = np.sum(volts * hour_angles)
 
@@ -101,8 +62,8 @@ def sum_of_squares(volts, hour_angles, Qew, Qns):
 	sum of squares of residuals (float): a single value 
 	"""
 	A, B = get_A_and_B(volts, hour_angles, Qew, Qns)
-	val = 2 * np.pi * (Qew * np.sin(hour_angles) + Qns * np.sin(hour_angles))
-	residuals = volts - (A*np.cos(val) + B*np.sin(val))
+	val = get_val(Qew, Qns, hour_angles)
+	residuals = volts - (A*np.cos(val) + B*np.cos(val))
 	return np.sum(residuals**2)
 
 
@@ -138,9 +99,10 @@ def baseline_value(Qew, Qns, declination, wavelength=0.025, terrestrial_latitude
 	B = np.sqrt(Bew**2 + Bns**2)
 	return B
 
+#hahahahahahhahahahahahahahahahahahhahswaghahahahahhahahagooooooooooooooooooootttttttttttteeeeeeeeeeeeeeeeeemmmmmmmmmmmmmmmmmmm#
 
 def baseline_script_1D(hour_angles, dec, volts, times):
-	Qew_values = np.linspace(620, 720, 10000)
+	Qew_values = np.linspace(500, 720, 10000)
 	s_squared_of_residuals = [sum_of_squares(volts, hour_angles, Q, 0) for Q in Qew_values]
 	min_Qew, min_s_squared = get_minimum_value_coordinates_1D(Qew_values, s_squared_of_residuals)
 

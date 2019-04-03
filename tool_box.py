@@ -25,6 +25,59 @@ fft = np.fft.fft
 shift = np.fft.fftshift
 freq = np.fft.fftfreq
 
+def RA_and_DEC_from_unixtimes(unixtimes, source="sun"):
+    """
+    Returns right ascension and declination from an array of unixtimes 
+    (only relevant for objects within the solar system, i.e. sun and moon)
+
+    Parameters:
+    unixtimes (int array): unixtimes from interferometer data
+    source (string): indicate "sun" or "moon"
+
+    Returns:
+    ra (float array): right ascension in radians
+    dec (float array): declination in radians
+    """
+    julian_dates = np.array(time["Julian"](unixtimes))
+
+    if source == "sun":
+        position = [ugradio.coord.sunpos(jd) for jd in julian_dates]
+    if source == "moon":
+        position = [ugradio.coord.moonpos(jd) for jd in julian_dates]
+
+    ra = np.array([position[jd][0] for jd in range(len(julian_dates))])
+    dec = np.array([position[jd][1] for jd in range(len(julian_dates))])
+    return np.radians(ra), np.radians(dec)
+
+
+def LST_from_unixtimes(unixtimes):
+    """
+    Returns local sidereal times from array of unixtimes
+    
+    Parameters:
+    unixtimes (int array): unixtimes from interferometer data
+
+    Returns:
+    lst (float array): Returns local sidereal time in radians
+    """
+    julian_dates = time["Julian"](unixtimes)
+    lst = time["LST"](julian_dates)
+    return lst
+
+
+def hour_angle(lst, ra):
+    """
+    Calculates the hour angle given local sidereal time and right ascension
+
+    Parameters:
+    lst (float array): local sidereal time in radians
+    ra (float array): right ascension in radians
+
+    Returns:
+    hour angles (float array): equal to (lst - ra)
+    """
+    return lst - ra
+
 
 def save_picture(fig, title):
     fig.savefig("Pictures\\" + title + '.png')
