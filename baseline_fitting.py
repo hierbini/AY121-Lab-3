@@ -7,8 +7,7 @@ import ugradio.coord
 
 def get_val(Qew, Qns, hour_angles):
 	"""
-	Calculates the value 2πντ, which shows up a lot in our equations. In particular, 
-	ντ = Qew*sin(h_s) + Qns*cos(h_s).
+	Calculates the value 2*pi*nu*tau, which shows up a lot in our equations. 
 
 	Parameters:
 	Qew (float): Single value
@@ -16,15 +15,16 @@ def get_val(Qew, Qns, hour_angles):
 	hour_angles (float array): hour angles calculated from local sidereal time and right ascension
 
 	Return:
-	value (float): Calculated value of 2πντ
+	value (float): Calculated value of 2*pi*nu*tau
 	"""
 	return 2 * np.pi * (Qew * np.sin(hour_angles) + Qns * np.cos(hour_angles))
+
 
 def get_A_and_B(volts, hour_angles, Qew, Qns):
 	"""
 	Solve two systems of linear equations for constants A and B
 
-	sum(volts * hour_angles) = A * sum(cos^2(val))         + B * sum(cos(val)sin(val))
+	sum(volts * hour_angles) = A * sum(cos^2(val))       + B * sum(cos(val)sin(val))
 	sum(volts * hour_angles) = A * sum(cos(val)sin(val)) + B * sum(sin^2(val))
 
 	Parameters:
@@ -81,23 +81,26 @@ def get_minimum_value_coordinates_2D(x1_array, x2_array, y_array):
 	return x1min, x2min, ymin
 
 
-def baseline_value(Qew, Qns, declination, wavelength=0.025, terrestrial_latitude=37.873199):
+def get_Bew(Qew, declination, wavelength=0.028):
+	return Qew * wavelength / np.cos(declination)
+
+
+def get_Bns(Qns, declination, wavelength=0.028, terrestrial_latitude=37.873199):
+	return Qns * wavelength / np.cos(declination) / np.sin(np.radians(terrestrial_latitude))
+
+
+def baseline_value(Bew, Bns):
 	"""
 	Calculates the baseline, which is the distance between the two telescopes in our interferometer.
 
 	Parameters:
-	Qew (float): value which minimizes the residual; used to calculate the east to west baseline component
-	Qns (float): value which minimizes the residual; used to calculate the north to south baseline component
-	declination (float): declination of source in radians
+	Bew (float): east to west baseline component
+	Bns (float): north to south baseline component
 	
 	Returns:
 	B (float): length of baseline in meters
 	"""
-	Bew = Qew * wavelength / np.cos(declination)
-	Bns = Qns * wavelength / np.cos(declination) / np.sin(np.radians(terrestrial_latitude))
-	print("Bew value: " + str(Bew), "Bns value: " + str(Bns))
-	B = np.sqrt(Bew**2 + Bns**2)
-	return B
+	return np.sqrt(Bew**2 + Bns**2)
 
 #hahahahahahhahahahahahahahahahahahhahswaghahahahahhahahagooooooooooooooooooootttttttttttteeeeeeeeeeeeeeeeeemmmmmmmmmmmmmmmmmmm#
 
@@ -128,6 +131,8 @@ def baseline_script_2D(hour_angles, dec, volts, times):
 		s_squared_of_residuals.append(Qns_dimension)
 	s_squared_of_residuals = np.array(s_squared_of_residuals)
 	min_Qew, min_Qns, min_s_squared = get_minimum_value_coordinates_2D(Qew_values, Qns_values, s_squared_of_residuals)
-
+	Bew, Bns = get_Bew(min_Qew, declination), get_Bns(min_Qns, declination)
+	baseline = baseline_value(Bew, Bns)
 	print("Qew value: " + str(min_Qew), "Qns value: " + str(min_Qns), "S_squared value: " + str(min_s_squared))
-	print("Baseline: " + str(baseline_value(Qew=min_Qew, Qns=min_Qns, declination=dec)))
+	print("Baseline: " + str(baseline))
+	return Bew, Bns, baseline
