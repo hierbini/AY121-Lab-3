@@ -39,7 +39,6 @@ def RA_and_DEC_from_unixtimes(unixtimes, source="sun"):
     dec (float array): declination in radians
     """
     julian_dates = time["Julian"](unixtimes)
-    print(julian_dates)
 
     if source == "sun":
         position = [ugradio.coord.sunpos(jd) for jd in julian_dates]
@@ -77,7 +76,7 @@ def hour_angle(lst, ra):
     Returns:
     hour angles (float array): equal to (lst - ra)
     """
-    return lst - ra
+    return lst - ra + 4*np.pi
 
 
 def save_picture(fig, title):

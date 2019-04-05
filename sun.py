@@ -18,7 +18,6 @@ class Sun:
 
 
 	def plot_signal(self):
-		print(self.volts, self.hour_angles)
 		plt.plot(self.hour_angles, self.volts)
 
 
@@ -48,7 +47,5 @@ class Sun:
 
 #one_hour_sun = Sun("one_hour_sun_data.npz")
 multi_hour_sun = Sun("multi_hour_sun_data.npz")
-#ffR_array, MF_values = diameter.modulating_function(100)
-#plt.plot(ffR_array, MF_values)
 multi_hour_sun.plot_signal()
 plt.show()

@@ -10,7 +10,7 @@ class Signal:
         self.signal = signal
         self.v_samp = v_samp
         self.nsamples = nsamples
-        self.freq, self.power = self.get_power()
+        #self.freq, self.power = self.get_power()
 
     def plot_signal(self, title="Insert Title"):
         self.signal_plot = plt.figure(figsize=[15, 6])
