@@ -14,7 +14,8 @@ class Sun:
 		self.volts, self.times = data_from_interf["volts"], data_from_interf["unixtime"]
 		self.signal = data.Signal(self.volts, 0.20, len(self.volts))
 		self.ra, self.dec = tb.RA_and_DEC_from_unixtimes(self.times, source="sun")
-		self.hour_angles = tb.hour_angle(tb.LST_from_unixtimes(self.times), self.ra)
+		self.LST = tb.LST_from_unixtimes(self.times)
+		self.hour_angles = tb.hour_angle(self.LST, self.ra)
 
 
 	def plot_signal(self):
@@ -46,6 +47,6 @@ class Sun:
 
 
 #one_hour_sun = Sun("one_hour_sun_data.npz")
-multi_hour_sun = Sun("multi_hour_sun_data.npz")
-multi_hour_sun.plot_signal()
-plt.show()
+#multi_hour_sun = Sun("multi_hour_sun_data.npz")
+#multi_hour_sun.plot_signal()
+#plt.show()

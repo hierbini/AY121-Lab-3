@@ -76,7 +76,7 @@ def hour_angle(lst, ra):
     Returns:
     hour angles (float array): equal to (lst - ra)
     """
-    return lst - ra + 4*np.pi
+    return lst - ra + 2*np.pi
 
 
 def save_picture(fig, title):

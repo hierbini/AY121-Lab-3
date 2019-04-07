@@ -52,5 +52,5 @@ class Orion:
 		return first_term - second_term
 
 
-orion_data = Orion("orion_data.npz")
-orion_data.baseline("1D")
+#orion_data = Orion("orion_data.npz")
+#orion_data.baseline("1D")

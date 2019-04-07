@@ -104,13 +104,16 @@ def baseline_value(Bew, Bns):
 
 #hahahahahahhahahahahahahahahahahahhahswaghahahahahhahahagooooooooooooooooooootttttttttttteeeeeeeeeeeeeeeeeemmmmmmmmmmmmmmmmmmm#
 
-def baseline_script_1D(hour_angles, dec, volts, times):
+def baseline_script_1D(hour_angles, dec, volts):
 	Qew_values = np.linspace(500, 720, 10000)
 	s_squared_of_residuals = [sum_of_squares(volts, hour_angles, Q, 0) for Q in Qew_values]
 	min_Qew, min_s_squared = get_minimum_value_coordinates_1D(Qew_values, s_squared_of_residuals)
 
+	Bew = get_Bew(min_Qew, dec)
+	baseline = baseline_value(Bew, 0)
+
 	print("Qew value: " + str(min_Qew), "S_squared value: " + str(min_s_squared))
-	print("Baseline: " + str(baseline_value(Qew=min_Qew, Qns=0, declination=dec)))
+	print("Baseline: " + str(baseline))
 
 	plt.plot(Qew_values, s_squared_of_residuals, color='k', linewidth=1.0)
 	plt.scatter(min_Qew, min_s_squared, color='c', linewidth=5)
@@ -120,7 +123,7 @@ def baseline_script_1D(hour_angles, dec, volts, times):
 	plt.show()
 
 
-def baseline_script_2D(hour_angles, dec, volts, times):
+def baseline_script_2D(hour_angles, dec, volts):
 	Qew_values = np.linspace(660, 690, 100)
 	Qns_values = np.linspace(40, 50, 100)
 	s_squared_of_residuals = []
