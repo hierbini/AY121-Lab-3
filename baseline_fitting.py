@@ -134,7 +134,7 @@ def baseline_script_2D(hour_angles, dec, volts):
 		s_squared_of_residuals.append(Qns_dimension)
 	s_squared_of_residuals = np.array(s_squared_of_residuals)
 	min_Qew, min_Qns, min_s_squared = get_minimum_value_coordinates_2D(Qew_values, Qns_values, s_squared_of_residuals)
-	Bew, Bns = get_Bew(min_Qew, declination), get_Bns(min_Qns, declination)
+	Bew, Bns = get_Bew(min_Qew, dec), get_Bns(min_Qns, dec)
 	baseline = baseline_value(Bew, Bns)
 	print("Qew value: " + str(min_Qew), "Qns value: " + str(min_Qns), "S_squared value: " + str(min_s_squared))
 	print("Baseline: " + str(baseline))
